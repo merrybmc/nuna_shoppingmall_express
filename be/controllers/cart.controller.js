@@ -1,8 +1,10 @@
+const { populate } = require('dotenv');
+
 const cartController = {};
 
 cartController.addToCaret = async (req, res) => {
   try {
-    const { userId } = req;
+    const { userId } = req; // middleware에서 받아올 수 있는 정보
     const { productId, size, qty } = req.body;
 
     let cart = await Cart.findOne({ userId });
@@ -27,6 +29,23 @@ cartController.addToCaret = async (req, res) => {
     await cart.save();
 
     res.status(200).json({ status: 'ok', data: cart });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', err: error.message });
+  }
+};
+
+cartController.getCart = async (req, res) => {
+  try {
+    const { userId } = req; // middleware에서 받아올 수 있는 정보
+    const cart = await Cart.findOne({ userId }).populate({
+      path: 'items', // cart.items 하위의 데이터들을 가져옴
+      populate: {
+        path: 'productId', // productId 값을 기준
+        model: 'Product', // 가지고 올 모델
+      },
+    });
+
+    res.status(200).json({ status: 'ok', data: cart.items });
   } catch (err) {
     res.status(400).json({ status: 'fail', err: error.message });
   }
