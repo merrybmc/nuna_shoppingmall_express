@@ -1,5 +1,7 @@
 const productController = {};
 
+const PAGE_SIZE = 5;
+
 productController.createProduct = async (req, res) => {
   try {
     const { sku, name, size, image, category, description, price, stock, status } = req.body;
@@ -18,14 +20,26 @@ productController.getProduct = async (req, res) => {
   try {
     const { page, name } = req.body;
     // $regex = .includes
-    // $options : "i" === 대소문자 구별하지 않음
+    // $options : "i" = 대소문자 구별하지 않음
     const condition = name ? { name: { $regex: name, $options: 'i' } } : {};
     let query = Product.find({ condition });
+    let res = { status: 'ok' };
+    if (page) {
+      // skip = 앞에서부터 해당 개수만큼 데이터를 스킵
+      // limit = 보여줄 데이터 개수
+      query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
+      // count = 데이터의 개수만 리턴
+      const totalItemNumber = await Product.find(condition).count();
+      // Math.ceil = 올림
+      const totalPageNumber = Math.ceil(totalItemNumber / PAGE_SIZE);
+      res.totalPageNumber = totalPageNumber;
+    }
 
     // query 실행
     const productList = await query.exec();
+    res.data = productList;
     // const products = await Product.find({});
-    res.status(200).json({ status: 'ok', data: productList });
+    res.status(200).json({ res });
   } catch (err) {
     res.status(400).json({ status: 'fail', error: err.message });
   }
