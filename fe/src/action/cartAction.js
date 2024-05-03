@@ -10,7 +10,7 @@ const addToCart =
 
       if (res.status !== 200) throw new Error(res.error);
 
-      dispatch({ type: types.ADD_TO_CART_SUCCESS, payload: res.data });
+      dispatch({ type: types.ADD_TO_CART_SUCCESS, payload: res.data.cartItemQty });
       dispatch(commonUiActions.showToastMessage('카트 상품 추가', 'success'));
     } catch (err) {
       dispatch({ type: types.ADD_TO_CART_FAIL, error: err.error });
