@@ -16,8 +16,16 @@ productController.createProduct = async (req, res) => {
 
 productController.getProduct = async (req, res) => {
   try {
-    const products = await Product.find({});
-    res.status(200).json({ status: 'ok', data: products });
+    const { page, name } = req.body;
+    // $regex = .includes
+    // $options : "i" === 대소문자 구별하지 않음
+    const condition = name ? { name: { $regex: name, $options: 'i' } } : {};
+    let query = Product.find({ condition });
+
+    // query 실행
+    const productList = await query.exec();
+    // const products = await Product.find({});
+    res.status(200).json({ status: 'ok', data: productList });
   } catch (err) {
     res.status(400).json({ status: 'fail', error: err.message });
   }
