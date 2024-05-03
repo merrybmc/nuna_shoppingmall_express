@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userActions } from '../action/userAction';
 
 import '../style/login.style.css';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -21,7 +22,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async (googleData) => {
-    // 구글로 로그인 하기
+    dispatch(userActions.loginWithGoogle(googleData.credential));
   };
 
   if (user) {
@@ -66,6 +67,12 @@ const Login = () => {
 
           <div className='text-align-center mt-2'>
             <p>-외부 계정으로 로그인하기-</p>
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => {
+                alert('login Faild');
+              }}
+            />
             <div className='display-center'></div>
           </div>
         </Form>
