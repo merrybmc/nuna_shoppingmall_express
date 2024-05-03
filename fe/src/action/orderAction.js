@@ -11,7 +11,9 @@ const createOrder = (payload) => async (dispatch) => {
 
     if (res.status !== 200) throw new Error(res.error);
 
-    dispatch({ tpye: types.CREATE_ORDER_SUCCESS, payload });
+    dispatch({ type: types.CREATE_ORDER_SUCCESS, payload });
+
+    dispatch(cartActions.getCartQty());
   } catch (err) {
     dispatch({ type: types.CREATE_ORDER_FAIL, payload: err.error });
     dispatch(commonUiActions.showToastMessage(err.error));

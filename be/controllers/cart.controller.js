@@ -1,4 +1,5 @@
 const { populate } = require('dotenv');
+const Cart = require('../model/Cart');
 
 const cartController = {};
 
@@ -49,6 +50,19 @@ cartController.getCart = async (req, res) => {
     res.status(200).json({ status: 'ok', data: cart.items });
   } catch (err) {
     res.status(400).json({ status: 'fail', err: error.message });
+  }
+};
+
+cartController.getCartQty = async (req, res) => {
+  try {
+    const { userId } = req;
+    const cart = await Cart.findOne({ userId });
+
+    if (!cart) throw new Error('There is no cart');
+
+    res.status(200).json({ status: 'ok', qty: cart.items.length });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', error: err.message });
   }
 };
 

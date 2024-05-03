@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./User');
 const Product = require('./Product');
+const Cart = require('./Cart');
 const Schema = mongoose.Schema;
 
 const orderSchema = Schema(
@@ -30,6 +31,13 @@ orderSchema.methods.toJSON = function () {
   return obj;
 };
 
+// save 메서드가 실행되었을 때 자동으로 실행
+orderSchema.post('save', async function () {
+  // 장바구니 초기화
+  const cart = await Cart.findOne({ userId: this.userId });
+  cart.items = [];
+  await cart.save();
+});
 // Schema model 정의
 const Order = mongoose.model('Order', orderSchema);
 module.exports = Order;
