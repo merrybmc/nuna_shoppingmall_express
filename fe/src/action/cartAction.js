@@ -18,7 +18,18 @@ const addToCart =
     }
   };
 
-const getCartList = () => async (dispatch) => {};
+const getCartList = () => async (dispatch) => {
+  try {
+    dispatch({ type: types.GET_CART_LIST_REQUEST });
+    const res = await api.get('/cart');
+
+    if (res.status !== 200) throw new Error(res.error);
+
+    dispatch({ type: types.GET_CART_LIST_SUCCESS, payload: res.data.data });
+  } catch (err) {
+    dispatch({ type: types.GET_CART_LIST_FAIL, payload: err.error });
+  }
+};
 const deleteCartItem = (id) => async (dispatch) => {};
 
 const updateQty = (id, value) => async (dispatch) => {};

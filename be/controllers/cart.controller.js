@@ -38,6 +38,7 @@ cartController.getCart = async (req, res) => {
   try {
     const { userId } = req; // middleware에서 받아올 수 있는 정보
     const cart = await Cart.findOne({ userId }).populate({
+      // items 하위에 있는 productId를 기준으로 하위의 값들을 가져온다.
       path: 'items', // cart.items 하위의 데이터들을 가져옴
       populate: {
         path: 'productId', // productId 값을 기준
