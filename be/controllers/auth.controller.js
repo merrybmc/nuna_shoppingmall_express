@@ -2,6 +2,9 @@ const authController = {};
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const { OAuth2Client } = require('google-auth-library');
+const User = require('../model/User');
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 authController.loginWithEmail = async (req, res) => {
   try {
@@ -19,6 +22,45 @@ authController.loginWithEmail = async (req, res) => {
       }
     }
     throw new Error('invalid email or password');
+  } catch (err) {
+    res.status(400).json({ status: 'fail', error: err.message });
+  }
+};
+
+authController.loginWithGoogle = async (req, res) => {
+  try {
+    const { credential } = req.body;
+    const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+    // 구글 토큰인지 검증
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    // 암호화된 정보 읽어오기
+    const { email, name } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+
+    // 신규 회원가입
+    if (!user) {
+      const randomPassword = '' + Math.floor(Math.random() * 1000000);
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(randomPassword, salt);
+
+      user = new User({
+        name,
+        email,
+        password: hash,
+      });
+
+      user.save();
+    }
+
+    // 토큰 발행 리턴
+    const sessionToken = await user.generateToken();
+    res.status(200).json({ status: 'ok', user, token: sessionToken });
   } catch (err) {
     res.status(400).json({ status: 'fail', error: err.message });
   }

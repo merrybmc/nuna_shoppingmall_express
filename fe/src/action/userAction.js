@@ -43,6 +43,7 @@ const loginWithGoogle = (credential) => async (dispatch) => {
 
     if (res.status !== 200) throw new Error(res.error);
 
+    sessionStorage.setItem('token', res.data.token);
     dispatch({ type: types.GOOGLE_LOGIN_SUCCESS, payload: res.data });
   } catch (err) {
     dispatch({ type: types.GOOGLE_LOGIN_FAIL, payload: err.error });
