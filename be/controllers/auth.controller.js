@@ -39,4 +39,15 @@ authController.authenticate = (req, res, next) => {
   }
 };
 
+authController.checkAdminPermission = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    jwt.verify = await User.findById(userId);
+    if (user.level !== 'admin') throw new Error('no permission');
+    next();
+  } catch (err) {
+    res.status(400).json({ status: 'fail', error: err.message });
+  }
+};
+
 module.exports = authController;
